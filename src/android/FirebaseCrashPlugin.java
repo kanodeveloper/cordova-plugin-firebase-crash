@@ -1,7 +1,6 @@
 package by.chemerisuk.cordova.firebase;
 
 import by.chemerisuk.cordova.support.CordovaMethod;
-import by.chemerisuk.cordova.support.ReflectiveCordovaPlugin;
 
 import com.crashlytics.android.Crashlytics;
 
@@ -10,25 +9,25 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 
-public class FirebaseCrashPlugin extends ReflectiveCordovaPlugin {
-    private final String TAG = "FirebaseCrashPlugin";
+public class FirebaseCrashPlugin extends CordovaPlugin {
 
-    @CordovaMethod(ExecutionThread.WORKER)
-    private void log(String message, CallbackContext callbackContext) {
-        Crashlytics.log(message);
-        callbackContext.success();
+    private static final String TAG = "FirebaseCrashPlugin";
+    final String argument = '';
+
+    @Override
+    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+        if (action.equals("log")) {
+            Crashlytics.log( args.getString(0) );
+            callbackContext.success();
+        }
+        else if (action.equals("logError")) {
+            Crashlytics.logException( new Exception(args.getString(0)) );
+            callbackContext.success();
+        }
+        else if (action.equals("setUserId")) {
+            Crashlytics.setUserIdentifier( args.getString(0) );
+            callbackContext.success();
+        }
+        return false;
     }
-
-    @CordovaMethod(ExecutionThread.UI)
-    private void logError(String message, CallbackContext callbackContext) {
-        Crashlytics.logException(new Exception(message));
-        callbackContext.success();
-    }
-
-    @CordovaMethod(ExecutionThread.UI)
-    private void setUserId(String userId, CallbackContext callbackContext) {
-        Crashlytics.setUserIdentifier(userId);
-        callbackContext.success();
-    }
-
 }
